@@ -101,3 +101,70 @@
     * a constructor object uses the keys method to search over the keys from the model
         * associate method I have no idea what it's doing here
     * last three lines export the db using sequelize
+* the next file to study is less clear than in previous sections
+    * in the models folder we have very few routes outside the directory
+    * we are somewhat at an impasse here. but where is passport required?
+        * we saw it in the server, but that won't help us here
+        * however, because we know passport authenticates data **when it passes from the client to the server**
+            * we can infer that it will be in the file involved in this aspect of the app's functioning
+            * for most purposes, requesting data from a website would not require authentication
+                * so we aren't looking for get requests
+            * it will most likely be involved in the changing or adding of data
+                * so we're post or put requests, it is. into the api routes!
+        * there is another path we could have taken
+            * when we looked into middleware in our config, we saw that the redirect method went to ('/)
+            * we know this is an html route that refers to the root of our site 
+            * we could then have gone from the html routes into the api routes
+            * from the data flow perspective, it makes sense to head to api routes first
+
+6. Routes Directory
+* inside api routes, we do in fact see passport required at the beginning, along with our models
+* before looking deeper into this page, we want to be thinking about two things
+    * where these routes are headed to
+        * this will allow us to follow the user flow through the page
+    * how these events are triggered will help us anticipate client side script
+* we see our first route, a post, which is where we are using passport
+    * this simple route uses passports authenticate function
+        * heads to members page
+        * likely triggered on user clicking login button
+* our second route is a post route that results from user signup
+    * it uses our model to create an object in our api
+        * bcrypt acts here through the user object to encrypt the password
+    * then we route to the login method described above
+* the next route is very simple - a redirect route to main after using logout
+* the last route is specific to the function of this app
+    * if the request is a user (not what this req.user comes from, if it came from the model i'd expect it to be capitalized)
+    * returns the api of user data
+    * otherwise, it seems to check if the user is logged in?
+        * **seems simple** but what exactly is happening here?
+* as that was the end of our api routes, next we'll head to html routes
+* interestingly we require isAuthenticated here
+* our three html routes here are very simple
+    * they serve our three html pages
+    * note that isAuthenticated is called when reaching the members page
+* that's it for our routes, last folder is public
+
+7. Public Directory
+* we will look at the javascript files and html files in tandem to trace their functionality
+* login - will handle our login page and with its accompanying post request
+    * sets variables to login form, input email and password
+        * we can infer these are the elements tied to the corresponding script
+    * on form submit, gather user data, fun loginuser function
+        * this is where the ajax call of our post request is made
+* members - this displays the list of members  
+    * not much going on here, as the heavy lifting has been done further back
+* signup - this file operates extremely similarly to the login form
+    * note they both use posts requests
+    * also note the alert function present to handle login errors
+
+8. Summary
+    * that settles our route through the paths of this simple MVC app
+    * to reiterate our path in extreme short hand
+        * we started at the server, which pretty much serves as the middle point to the app
+        * we went into our models, which determined how our data would be processed for it (in this case we have yet to receive client side data, but we assume its there) to be ready for the database
+        * we went to config, which contained our connections to mysql and passport for authenticating the data sent to and retrieved from the database
+        * we went to our api routes, which would pass data from the client to our models
+        * we went to the client side js, which was tied to events and made the ajax calls 
+        * we went to the html pages, where the users would submit data that would flow down this path
+    * it would also have been feasible to start at the html pages and trace the data back as if it was a login that had been sent by the user
+    * im impressed by the server - in the end its whats tying all these functional components together, even though it is not doing much by itself
